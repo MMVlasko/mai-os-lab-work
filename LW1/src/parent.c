@@ -61,9 +61,9 @@ void parent(const char* pathToChild, FILE* stream) {
     close(pipe1[0]);
     close(pipe2[0]);
 
-    printf("Введите строку: ");
     // Ввод строк и передача в дочерние процессы
     while (1) {
+        printf("Введите строку: ");
         fgets(input, MAX_BUFFER, stdin);
         input[strcspn(input, "\n")] = 0;  // Удаление символа новой строки
 
@@ -74,6 +74,7 @@ void parent(const char* pathToChild, FILE* stream) {
             // Чётная длина — отправляем во второй дочерний процесс
             write(pipe2[1], input, strlen(input) + 1);
         }
+        sleep(1);
     }
 
     close(pipe1[1]);

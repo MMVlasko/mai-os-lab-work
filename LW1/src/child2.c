@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
             // Инвертируем строку
             reverse_string(buffer);
             // Выводим инвертированную строку
-            printf("Второй дочерний процесс: %s\nВведите строку: ", buffer);
+            printf("Второй дочерний процесс: %s\n", buffer);
+            fflush(stdout);
             // Записываем строку в файл
             fprintf(file, "%s\n", buffer);
         }
