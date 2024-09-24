@@ -1,8 +1,8 @@
 #include <string.h>
-#include "../include/utils.h"
+#include "utils.h"
 
 
-void reverse_string(char *str) {
+void ReverseString(char *str) {
     int len = strlen(str);
     for (int i = 0; i < len / 2; i++) {
         char temp = str[i];

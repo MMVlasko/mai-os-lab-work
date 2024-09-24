@@ -1,6 +1,3 @@
-#ifndef UTILS_H
-#define UTILS_H
-
-void reverse_string(char *str);
-
-#endif
+#pragma once
+int fuck = 0;
+void ReverseString(char *str);

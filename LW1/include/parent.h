@@ -1,8 +1,4 @@
-#ifndef PARENT_H
-#define PARENT_H
-
+#pragma once
 #include <stdio.h>
 
-void parent(const char* pathToChild, FILE* stream);
-
-#endif
+void Parent(const char* pathToChild, FILE* stream);

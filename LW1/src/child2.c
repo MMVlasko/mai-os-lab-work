@@ -1,12 +1,11 @@
-// child2.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "../include/utils.h"
+#include "utils.h"
 
-#define MAX_BUFFER 256
+const int MAX_BUFFER = 256;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -23,12 +22,9 @@ int main(int argc, char *argv[]) {
 
     while (read(STDIN_FILENO, buffer, MAX_BUFFER) > 0) {
         if (strlen(buffer) > 0) {
-            // Инвертируем строку
-            reverse_string(buffer);
-            // Выводим инвертированную строку
+            ReverseString(buffer);
             printf("Второй дочерний процесс: %s\n", buffer);
             fflush(stdout);
-            // Записываем строку в файл
             fprintf(file, "%s\n", buffer);
         }
     }

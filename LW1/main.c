@@ -5,7 +5,7 @@
 
 int main(void) {
 
-    parent(getenv("PATH_TO_CHILD"), stdin);
+    Parent(getenv("PATH_TO_CHILD"), stdin);
 
     return 0;
 }   

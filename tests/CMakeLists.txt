@@ -17,6 +17,6 @@ add_executable(lab1_test lab1_test.cpp ../LW1/src/parent.c ../LW1/include/parent
         ../LW1/src/utils.c ../LW1/include/utils.h)
 
 target_link_libraries(lab1_test PRIVATE GTest::GTest)
-target_include_directories(lab1_test PRIVATE ../LW1/include)
+target_include_directories(lab1_test PRIVATE ${PROJECT_SOURCE_DIR}/LW1/include)
 
 add_test(lab1_test lab1_test)
