@@ -1,13 +1,17 @@
 #include <gtest/gtest.h> 
 
-#include "../LW1/include/utils.h"
- 
+extern "C" {
+    #include <string.h>
+    #include <utils.h>
+}
+
 TEST(test_utils, basic_tests) 
 { 
-    // char str[] = "abcdef";
-    // ReverseString(str);
-    // ASSERT_TRUE(str == "fedcba");
-    ASSERT_TRUE(fuck == 0);
+    char str[] = "abcdef";
+    char expected_str[] = "fedcba";
+    ReverseString(str);
+    ASSERT_TRUE(strcmp(str, expected_str) == 0);
+    
 } 
  
 int main(int argc, char **argv) { 

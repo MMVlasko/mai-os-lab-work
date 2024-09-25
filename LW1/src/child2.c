@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-const int MAX_BUFFER = 256;
+// const int MAX_BUFFER = 256;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     }
 
     char buffer[MAX_BUFFER];
-    FILE *file = fopen(argv[1], "w");
+    FILE *file = fopen(argv[1], "a");
     if (!file) {
         perror("Failed to open file");
         exit(1);
@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
             printf("Второй дочерний процесс: %s\n", buffer);
             fflush(stdout);
             fprintf(file, "%s\n", buffer);
+            fflush(file);
         }
     }
 

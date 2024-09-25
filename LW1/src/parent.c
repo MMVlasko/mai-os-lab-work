@@ -1,13 +1,11 @@
+#include "parent.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "parent.h"
-
-const int MAX_BUFFER = 256;
 
 void Parent(const char* pathToChild, FILE* stream) {
     int pipe1[2], pipe2[2];
