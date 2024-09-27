@@ -3,9 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "utils.h"
-
-// const int MAX_BUFFER = 256;
+#include <utils.h>
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {

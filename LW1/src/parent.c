@@ -1,5 +1,3 @@
-#include "parent.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,12 +5,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void Parent(const char* pathToChild, FILE* stream) {
+#include <parent.h>
+#include <utils.h>
+
+void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream) {
     int pipe1[2], pipe2[2];
     pid_t pid1, pid2;
 
-    char filename1[MAX_BUFFER];
-    char filename2[MAX_BUFFER];
+    char fileName1[MAX_BUFFER];
+    char fileName2[MAX_BUFFER];
     char input[MAX_BUFFER];
 
     if (pipe(pipe1) == -1 || pipe(pipe2) == -1) {
@@ -21,12 +22,14 @@ void Parent(const char* pathToChild, FILE* stream) {
     }
 
     printf("Введите имя файла для первого дочернего процесса: ");
-    fgets(filename1, MAX_BUFFER, stdin);
-    filename1[strcspn(filename1, "\n")] = 0;
+    fflush(stdout);
+    fgets(fileName1, MAX_BUFFER, stream);
+    fileName1[strcspn(fileName1, "\n")] = 0;
 
     printf("Введите имя файла для второго дочернего процесса: ");
-    fgets(filename2, MAX_BUFFER, stdin);
-    filename2[strcspn(filename2, "\n")] = 0;
+    fflush(stdout);
+    fgets(fileName2, MAX_BUFFER, stream);
+    fileName2[strcspn(fileName2, "\n")] = 0;
 
     pid1 = fork();
     if (pid1 == 0) {
@@ -34,7 +37,7 @@ void Parent(const char* pathToChild, FILE* stream) {
         dup2(pipe1[0], STDIN_FILENO);
         close(pipe1[0]);
 
-        execl("./child1", "./child1", filename1, NULL);
+        execl(pathToChild1, pathToChild1, fileName1, NULL);
         perror("execl failed");
         exit(-1);
     }
@@ -45,7 +48,7 @@ void Parent(const char* pathToChild, FILE* stream) {
         dup2(pipe2[0], STDIN_FILENO);
         close(pipe2[0]);
 
-        execl("./child2", "./child2", filename2, NULL);
+        execl(pathToChild2, pathToChild2, fileName2, NULL);
         perror("execl failed");
         exit(-1);
     }
@@ -53,11 +56,11 @@ void Parent(const char* pathToChild, FILE* stream) {
     close(pipe1[0]);
     close(pipe2[0]);
 
-    while (1) {
+    while (strcmp(input, "q") != 0) {
         printf("Введите строку: ");
-        fgets(input, MAX_BUFFER, stdin);
+        fflush(stdout);
+        fgets(input, MAX_BUFFER, stream);
         input[strcspn(input, "\n")] = 0;
-
         if (strlen(input) % 2 == 1) {
             write(pipe1[1], input, strlen(input) + 1);
         } else {

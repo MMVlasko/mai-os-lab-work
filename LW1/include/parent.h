@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-const static int MAX_BUFFER = 256;
-
-void Parent(const char* pathToChild, FILE* stream);
+void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream);
 
 #endif

@@ -3,9 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "utils.h"
-
-// const int MAX_BUFFER = 256;
+#include <utils.h>
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -21,6 +19,9 @@ int main(int argc, char *argv[]) {
     }
 
     while (read(STDIN_FILENO, buffer, MAX_BUFFER) > 0) {
+        if (strcmp(buffer, "q") == 0) {
+            break;
+        }
         if (strlen(buffer) > 0) {
             ReverseString(buffer);
             printf("Первый дочерний процесс: %s\n", buffer);

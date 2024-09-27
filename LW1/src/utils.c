@@ -1,6 +1,6 @@
-#include "utils.h"
-
 #include <string.h>
+
+#include <utils.h>
 
 void ReverseString(char *str) {
     int len = strlen(str);

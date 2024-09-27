@@ -6,6 +6,7 @@ target_include_directories(utils PUBLIC include)
 
 add_library(parent include/parent.h src/parent.c)
 target_include_directories(parent PUBLIC include)
+target_link_libraries(parent utils)
 
 add_executable(child1 src/child1.c)
 target_include_directories(child1 PUBLIC include)
