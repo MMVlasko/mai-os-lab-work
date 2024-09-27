@@ -18,4 +18,5 @@ add_executable(LW1_test lab1_test.cpp)
 target_include_directories(LW1_test PUBLIC ../LW1/include)
 target_link_libraries(LW1_test PRIVATE utils parent GTest::GTest)
 
-add_test(LW1_test LW1_test)
+enable_testing()
+add_test(NAME LW1_test COMMAND LW1_test)
