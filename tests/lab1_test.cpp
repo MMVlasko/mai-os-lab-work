@@ -30,9 +30,7 @@ TEST(test_reverse_string, test_empty_string)
 
 TEST(test_parent, test) 
 {
-    testing::internal::CaptureStdout();
     const char* fileWithInput = "input.txt";
-    const char* fileWithOutput = "output.txt";
 
     constexpr int inputSize = 5;
 
@@ -43,12 +41,6 @@ TEST(test_parent, test)
             "efghi",
             "q"
     };
-
-    std::string expectedOutput = "Введите имя файла для первого дочернего процесса: \
-Введите имя файла для второго дочернего \
-процесса: Введите строку: Второй дочерний процесс: dcba\n\
-Введите строку: Первый дочерний процесс: ihgfe\n\
-Введите строку: ";
 
     {
         auto inFile = std::ofstream(fileWithInput);
@@ -65,10 +57,6 @@ TEST(test_parent, test)
     std::unique_ptr<FILE, decltype(deleter)> inFile(fopen(fileWithInput, "r"), deleter);
 
     Parent("../LW1/child1", "../LW1/child2", inFile.get());
-
-    std::string resultOutput = testing::internal::GetCapturedStdout();
-
-    ASSERT_EQ(resultOutput, expectedOutput);
 
     std::ifstream file1(input[0]);
     std::ifstream file2(input[1]);
@@ -95,7 +83,6 @@ TEST(test_parent, test)
     };
 
     removeIfExists(fileWithInput);
-    removeIfExists(fileWithOutput);
     removeIfExists(input[0]);
     removeIfExists(input[1]);
 }

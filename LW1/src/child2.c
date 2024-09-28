@@ -21,8 +21,7 @@ int main(int argc, char *argv[]) {
     while (read(STDIN_FILENO, buffer, MAX_BUFFER) > 0) {
         if (strlen(buffer) > 0) {
             ReverseString(buffer);
-            printf("Второй дочерний процесс: %s\n", buffer);
-            fflush(stdout);
+            
             fprintf(file, "%s\n", buffer);
             fflush(file);
         }

@@ -24,8 +24,7 @@ int main(int argc, char *argv[]) {
         }
         if (strlen(buffer) > 0) {
             ReverseString(buffer);
-            printf("Первый дочерний процесс: %s\n", buffer);
-            fflush(stdout);
+            
             fprintf(file, "%s\n", buffer);
             fflush(file);
         }

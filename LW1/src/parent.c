@@ -21,17 +21,19 @@ void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream) {
         exit(-1);
     }
 
-    printf("Введите имя файла для первого дочернего процесса: ");
-    fflush(stdout);
     fgets(fileName1, MAX_BUFFER, stream);
     fileName1[strcspn(fileName1, "\n")] = 0;
-
-    printf("Введите имя файла для второго дочернего процесса: ");
-    fflush(stdout);
+    
     fgets(fileName2, MAX_BUFFER, stream);
     fileName2[strcspn(fileName2, "\n")] = 0;
 
     pid1 = fork();
+
+    if (pid1 == -1) {
+        perror("fork failed");
+        exit(-1);
+    }
+
     if (pid1 == 0) {
         close(pipe1[1]);
         dup2(pipe1[0], STDIN_FILENO);
@@ -43,6 +45,12 @@ void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream) {
     }
 
     pid2 = fork();
+
+    if (pid2 == -1) {
+        perror("fork failed");
+        exit(-1);
+    }
+
     if (pid2 == 0) {
         close(pipe2[1]);
         dup2(pipe2[0], STDIN_FILENO);
@@ -57,10 +65,9 @@ void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream) {
     close(pipe2[0]);
 
     while (strcmp(input, "q") != 0) {
-        printf("Введите строку: ");
-        fflush(stdout);
         fgets(input, MAX_BUFFER, stream);
         input[strcspn(input, "\n")] = 0;
+
         if (strlen(input) % 2 == 1) {
             write(pipe1[1], input, strlen(input) + 1);
         } else {
