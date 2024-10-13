@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <stdio.h>
 
 #include <utils.h>
 
@@ -11,10 +10,16 @@ void Merge(int *array, int leftEdge, int mid, int rightEdge) {
     int *leftArray = (int *)malloc(leftArrayVolume * sizeof(int));
     int *rightArray = (int *)malloc(rightArrayVolume * sizeof(int));
     
-    for (int i = 0; i < leftArrayVolume; i++) leftArray[i] = array[leftEdge + i];
-    for (int i = 0; i < rightArrayVolume; i++) rightArray[i] = array[mid + 1 + i];
+    for (int i = 0; i < leftArrayVolume; ++i) {
+        leftArray[i] = array[leftEdge + i];
+    }
+
+    for (int i = 0; i < rightArrayVolume; ++i) {
+        rightArray[i] = array[mid + 1 + i];
+    }
     
     int i = 0, j = 0, k = leftEdge;
+
     while (i < leftArrayVolume && j < rightArrayVolume) {
         if (leftArray[i] <= rightArray[j]) {
             array[k++] = leftArray[i++];
@@ -22,8 +27,14 @@ void Merge(int *array, int leftEdge, int mid, int rightEdge) {
             array[k++] = rightArray[j++];
         }
     }
-    while (i < leftArrayVolume) array[k++] = leftArray[i++];
-    while (j < rightArrayVolume) array[k++] = rightArray[j++];
+
+    while (i < leftArrayVolume) {
+        array[k++] = leftArray[i++];
+    }
+
+    while (j < rightArrayVolume) {
+        array[k++] = rightArray[j++];
+    }
     
     free(leftArray);
     free(rightArray);
@@ -32,16 +43,20 @@ void Merge(int *array, int leftEdge, int mid, int rightEdge) {
 void Sort(MergeData *data) {
     if (data->left < data->right) {
         int mid = data->left + (data->right - data->left) / 2;
+
         MergeData firstData = {data->array, data->left, mid};
         MergeData secondData = {data->array, mid + 1, data->right};
+
         Sort(&firstData);
         Sort(&secondData);
+
         Merge(data->array, data->left, mid, data->right);
     }
 }
 
 void *ParallelSort(void *arg) {
     MergeData *data = (MergeData*)arg;
+    
     int leftEdge = data->left;
     int rightEdge = data->right;
     int *array = data->array;
@@ -57,8 +72,7 @@ void *ParallelSort(void *arg) {
         } else {
             Sort(&firstData);
         }
-        printf("--%d--", mid);
-        fflush(stdout);
+
         if (!sem_trywait(&semaphore)) {
             pthread_create(&secondThread, NULL, ParallelSort, &secondData);
         } else {

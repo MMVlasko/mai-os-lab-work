@@ -14,18 +14,14 @@ int main(int argc, char* argv[]) {
             printf("Введите количество элементов в массиве: ");
             scanf("%d", &n);
             
-            int *array = (int *)malloc(n * sizeof(int));
+            array = (int*)malloc(n * sizeof(int));
             printf("Введите элементы массива:\n");
             for (int i = 0; i < n; i++) {
-                printf("\n%d\n", i);
-                int t;
-                scanf("%d", &t);
-                array[i] = t;
-                printf("\n-%d-\n", array[i]);
+                scanf("%d", &array[i]);
             }
         } else {
             srand(time(NULL));
-            int n = rand() % 1000;
+            n = rand() % 1000;
 
             array = (int *)malloc(n * sizeof(int));
             for (int i = 0; i < n; i++) {
@@ -33,18 +29,17 @@ int main(int argc, char* argv[]) {
             }
             printf("Исходный массив:\n");
             for (int i = 0; i < n; i++) {
-                printf("%d ", array[i]);
+                printf("%d\n", array[i]);
             }
             printf("\n");
         }
-        printf("syuck");
+        
         MergeData data = {array, 0, n - 1};
-        printf("fuck");
-        ParallelSort((void*)(&data));
+        ParallelSort(&data);
         
         printf("Отсортированный массив:\n");
         for (int i = 0; i < n; i++) {
-            printf("%d ", array[i]);
+            printf("%d\n", array[i]);
         }
         printf("\n");
         
