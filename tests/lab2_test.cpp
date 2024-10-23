@@ -49,8 +49,8 @@ TEST(Sort, test)
 
 TEST(ParallelSort, test) 
 { 
-    int threadsCount = 4;
-    sem_init(&semaphore, 0, threadsCount);
+    int threadsCount = 10;
+    sem_init(&semaphore, threadsCount);
 
     int input[] = {2, 1, 9, 7, 5, 6, 4, 10, 3, 8};
     int *data = (int*)malloc(sizeof(int) * 10);
@@ -64,6 +64,7 @@ TEST(ParallelSort, test)
     MergeData mergeData = {data, 0, 9};
 
     ParallelSort(&mergeData);
+
     for (int i = 0; i < 10; ++i) {
         ASSERT_EQ(data[i], expected[i]);
     }

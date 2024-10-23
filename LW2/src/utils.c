@@ -64,33 +64,35 @@ void *ParallelSort(void *arg) {
     if (leftEdge < rightEdge) {
         int mid = leftEdge + (rightEdge - leftEdge) / 2;
         pthread_t firstThread, secondThread;
+        int firstThreadCreated = 0, secondThreadCreated = 0;
         MergeData firstData = {array, leftEdge, mid};
         MergeData secondData = {array, mid + 1, rightEdge};
 
-        if (!sem_trywait(&semaphore)) {
+        if (sem_trywait(&semaphore) == 0) {
+            firstThreadCreated = 1;
             pthread_create(&firstThread, NULL, ParallelSort, &firstData);
         } else {
             Sort(&firstData);
         }
 
-        if (!sem_trywait(&semaphore)) {
+        if (sem_trywait(&semaphore) == 0) {
+            secondThreadCreated = 1;
             pthread_create(&secondThread, NULL, ParallelSort, &secondData);
         } else {
             Sort(&secondData);
         }
 
-        if (!sem_trywait(&semaphore)) {
+        if (firstThreadCreated) {
             pthread_join(firstThread, NULL);
+            sem_post(&semaphore);
         }
 
-        if (!sem_trywait(&semaphore)) {
+        if (secondThreadCreated) {
             pthread_join(secondThread, NULL);
+            sem_post(&semaphore);
         }
 
         Merge(array, leftEdge, mid, rightEdge);
-
-        sem_post(&semaphore);
-        sem_post(&semaphore);
     }
     return NULL;
 }
