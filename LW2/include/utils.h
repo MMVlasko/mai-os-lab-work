@@ -1,9 +1,10 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
-#include <semaphore.h>
+extern int maxCountOfThreads;
 
-static sem_t semaphore;
+extern pthread_mutex_t mutex;
+extern int countOfActiveThreads;
 
 typedef struct {
     int *array;
@@ -13,8 +14,6 @@ typedef struct {
 
 void Merge(int *array, int left, int mid, int right);
 
-void Sort(MergeData *data);
-
-void *ParallelSort(void *arg);
+void *MergeSort(void *arg);
 
 #endif

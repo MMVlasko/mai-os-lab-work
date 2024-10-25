@@ -1,26 +1,26 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <unistd.h>
+#include <math.h>
 
 #include <utils.h>
 
-void Merge(int *array, int leftEdge, int mid, int rightEdge) {
-    int leftArrayVolume = mid - leftEdge + 1;
-    int rightArrayVolume = rightEdge - mid;
-    int *leftArray = (int *)malloc(leftArrayVolume * sizeof(int));
-    int *rightArray = (int *)malloc(rightArrayVolume * sizeof(int));
-    
-    for (int i = 0; i < leftArrayVolume; ++i) {
-        leftArray[i] = array[leftEdge + i];
-    }
+void Merge(int *array, const int left, const int mid, const int right) {
+    int leftSize = mid - left + 1;
+    int rightSize = right - mid;
 
-    for (int i = 0; i < rightArrayVolume; ++i) {
+    int *leftArray = malloc(leftSize * sizeof(int));
+    int *rightArray = malloc(rightSize * sizeof(int));
+
+    for (int i = 0; i < leftSize; ++i) {
+        leftArray[i] = array[left + i];
+    }
+    for (int i = 0; i < rightSize; ++i) {
         rightArray[i] = array[mid + 1 + i];
     }
-    
-    int i = 0, j = 0, k = leftEdge;
 
-    while (i < leftArrayVolume && j < rightArrayVolume) {
+    int i = 0, j = 0, k = left;
+    while (i < leftSize && j < rightSize) {
         if (leftArray[i] <= rightArray[j]) {
             array[k++] = leftArray[i++];
         } else {
@@ -28,69 +28,52 @@ void Merge(int *array, int leftEdge, int mid, int rightEdge) {
         }
     }
 
-    while (i < leftArrayVolume) {
+    while (i < leftSize) {
         array[k++] = leftArray[i++];
     }
-
-    while (j < rightArrayVolume) {
+    while (j < rightSize) {
         array[k++] = rightArray[j++];
     }
-    
+
     free(leftArray);
     free(rightArray);
 }
 
-void Sort(MergeData *data) {
+void *MergeSort(void *arg) {
+    MergeData *data = arg;
+
     if (data->left < data->right) {
         int mid = data->left + (data->right - data->left) / 2;
 
-        MergeData firstData = {data->array, data->left, mid};
-        MergeData secondData = {data->array, mid + 1, data->right};
+        MergeData leftData = {data->array, data->left, mid};
+        MergeData rightData = {data->array, mid + 1, data->right};
 
-        Sort(&firstData);
-        Sort(&secondData);
+        pthread_t leftThread;
+        int leftThreadCreated = 0;
+
+        pthread_mutex_lock(&mutex);
+        if (countOfActiveThreads < maxCountOfThreads && (mid - data->left) > 1000) {
+            ++countOfActiveThreads;
+            if (!pthread_create(&leftThread, NULL, MergeSort, &leftData)) {
+                leftThreadCreated = 1;
+            }
+        }
+        pthread_mutex_unlock(&mutex);
+
+        if (!leftThreadCreated) {
+            MergeSort(&leftData);
+        }
+
+        if (leftThreadCreated) {
+            pthread_join(leftThread, NULL);
+            pthread_mutex_lock(&mutex);
+            --countOfActiveThreads;
+            pthread_mutex_unlock(&mutex);
+        }
+
+        MergeSort(&rightData);
 
         Merge(data->array, data->left, mid, data->right);
-    }
-}
-
-void *ParallelSort(void *arg) {
-    MergeData *data = (MergeData*)arg;
-    
-    int leftEdge = data->left;
-    int rightEdge = data->right;
-    int *array = data->array;
-
-    if (leftEdge < rightEdge) {
-        int mid = leftEdge + (rightEdge - leftEdge) / 2;
-        pthread_t firstThread, secondThread;
-        MergeData firstData = {array, leftEdge, mid};
-        MergeData secondData = {array, mid + 1, rightEdge};
-
-        if (!sem_trywait(&semaphore)) {
-            pthread_create(&firstThread, NULL, ParallelSort, &firstData);
-        } else {
-            Sort(&firstData);
-        }
-
-        if (!sem_trywait(&semaphore)) {
-            pthread_create(&secondThread, NULL, ParallelSort, &secondData);
-        } else {
-            Sort(&secondData);
-        }
-
-        if (!sem_trywait(&semaphore)) {
-            pthread_join(firstThread, NULL);
-        }
-
-        if (!sem_trywait(&semaphore)) {
-            pthread_join(secondThread, NULL);
-        }
-
-        Merge(array, leftEdge, mid, rightEdge);
-
-        sem_post(&semaphore);
-        sem_post(&semaphore);
     }
     return NULL;
 }

@@ -1,14 +1,24 @@
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include <utils.h>
 
+pthread_mutex_t mutex;
+int countOfActiveThreads = 0;
+int maxCountOfThreads = 0;
+
 int main(int argc, char* argv[]) {
     if (argc == 3) {
+        if (pthread_mutex_init(&mutex, NULL) != 0) {
+            perror("Could not initialize mutex!\n");
+            exit(-1);
+        }
+
+        maxCountOfThreads = atoi(argv[1]);
         int *array;
         int n;
-        sem_init(&semaphore, 0, atoi(argv[1]));
 
         if (*argv[2] == 'i') {
             printf("Введите количество элементов в массиве: ");
@@ -21,7 +31,7 @@ int main(int argc, char* argv[]) {
             }
         } else {
             srand(time(NULL));
-            n = rand() % 1000;
+            n = rand() % 10000;
 
             array = (int *)malloc(n * sizeof(int));
             for (int i = 0; i < n; i++) {
@@ -33,9 +43,9 @@ int main(int argc, char* argv[]) {
             }
             printf("\n");
         }
-        
+
         MergeData data = {array, 0, n - 1};
-        ParallelSort(&data);
+        MergeSort(&data);
         
         printf("Отсортированный массив:\n");
         for (int i = 0; i < n; i++) {
@@ -44,10 +54,9 @@ int main(int argc, char* argv[]) {
         printf("\n");
         
         free(array);
-        sem_destroy(&semaphore);
     } else {
         printf("Использование: ./lab2 <максимальное количество потоков> <i/r>\ni - ввести ");
-        printf("произвольный массив\nr - сгенерировать случайный массив");
+        printf("произвольный массив\nr - сгенерировать случайный массив\n");
     }
 
     return 0;
