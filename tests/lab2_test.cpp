@@ -92,7 +92,7 @@ TEST(speedAndParallelCorrectness, test)
     free(parallelData);
     pthread_mutex_destroy(&mutex);
 
-    EXPECT_TRUE(endParallel - startParallel < endSimple - startSimple);
+    ASSERT_TRUE(endParallel - startParallel < endSimple - startSimple);
 }
  
 int main(int argc, char **argv) { 

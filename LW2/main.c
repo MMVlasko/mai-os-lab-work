@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
             exit(-1);
         }
 
-        maxCountOfThreads = atoi(argv[1]);
+        maxCountOfThreads = atoi(argv[1]) - 1;
         int *array;
         int n;
 

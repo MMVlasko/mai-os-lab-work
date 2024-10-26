@@ -51,14 +51,14 @@ void *MergeSort(void *arg) {
         pthread_t leftThread;
         int leftThreadCreated = 0;
 
-        pthread_mutex_lock(&mutex);
         if (countOfActiveThreads < maxCountOfThreads && (mid - data->left) > 1000) {
+            pthread_mutex_lock(&mutex);
             ++countOfActiveThreads;
+            pthread_mutex_unlock(&mutex);
             if (!pthread_create(&leftThread, NULL, MergeSort, &leftData)) {
                 leftThreadCreated = 1;
             }
         }
-        pthread_mutex_unlock(&mutex);
 
         if (!leftThreadCreated) {
             MergeSort(&leftData);
