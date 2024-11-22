@@ -42,14 +42,13 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         sem_wait(semRead2);
-        if (strcmp(sharedMemory, "q") == 0) {
+        if (!strcmp(sharedMemory, "q")) {
             break;
         }
-        if (strlen(sharedMemory) % 2 == 0) {
-            ReverseString(sharedMemory);
-            fprintf(file, "%s\n", sharedMemory);
-            fflush(file);
-        }
+
+        ReverseString(sharedMemory);
+        fprintf(file, "%s\n", sharedMemory);
+        fflush(file);
         sem_post(semWrite);
     }
 

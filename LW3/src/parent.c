@@ -78,10 +78,17 @@ void Parent(const char* pathToChild1, const char* pathToChild2, FILE* stream) {
         sem_wait(semWrite);
         fgets(sharedMemory, MEM_SIZE, stream);
         sharedMemory[strcspn(sharedMemory, "\n")] = 0;
-        sem_post(semRead1);
 
-        if (strcmp(sharedMemory, "q") == 0) {
+        if (!strcmp(sharedMemory, "q")) {
+            sem_post(semRead1);
+            sem_post(semRead2);
             break;
+        }
+
+        if (strlen(sharedMemory) % 2 == 1) {
+            sem_post(semRead1);
+        } else {
+            sem_post(semRead2);
         }
     }
 

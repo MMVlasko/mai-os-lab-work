@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
     }
 
     sem_t *semRead1 = sem_open("/sem_read1", 0);
-    sem_t *semRead2 = sem_open("/sem_read2", 0);
+    sem_t *semWrite = sem_open("/sem_write", 0);
 
-    if (semRead1 == SEM_FAILED || semRead2 == SEM_FAILED) {
+    if (semRead1 == SEM_FAILED || semWrite == SEM_FAILED) {
         perror("semaphore's opening error");
         exit(-1);
     }
@@ -42,22 +42,20 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         sem_wait(semRead1);
-        if (strcmp(sharedMemory, "q") == 0) {
-            sem_post(semRead2);
+        if (!strcmp(sharedMemory, "q")) {
             break;
         }
-        if (strlen(sharedMemory) % 2 == 1) {
-            ReverseString(sharedMemory);
-            fprintf(file, "%s\n", sharedMemory);
-            fflush(file);
-        }
-        sem_post(semRead2);
+
+        ReverseString(sharedMemory);
+        fprintf(file, "%s\n", sharedMemory);
+        fflush(file);
+        sem_post(semWrite);
     }
 
     fclose(file);
 
     sem_close(semRead1);
-    sem_close(semRead2);
+    sem_close(semWrite);
 
     munmap(sharedMemory, MEM_SIZE);
     close(sharedFd);
