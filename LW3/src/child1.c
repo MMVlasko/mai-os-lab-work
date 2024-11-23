@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    sem_t *semRead1 = sem_open("/sem_read1", 0);
-    sem_t *semWrite = sem_open("/sem_write", 0);
+    sem_t *semRead1 = sem_open("/sem_read1", O_RDWR);
+    sem_t *semWrite = sem_open("/sem_write", O_RDWR);
 
     if (semRead1 == SEM_FAILED || semWrite == SEM_FAILED) {
         perror("semaphore's opening error");
