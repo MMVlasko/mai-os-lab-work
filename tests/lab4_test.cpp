@@ -1,22 +1,25 @@
 #include <gtest/gtest.h>
 #include <cstdlib>
+#include <cmath>
 
 extern "C" {
     #include <headers.h>
     #include <dlfcn.h>
 }
 
-TEST(some_first, test) {
-    int result = some(1);
-    ASSERT_EQ(result, 3);
+TEST(Pi_first, test) {
+    constexpr int K = 100000;
+    const float pi = Pi(K);
+    ASSERT_TRUE(abs(pi - M_PI) < 0.0001);
 }
 
-TEST(home_first, test) {
-    int result = home(1);
-    ASSERT_EQ(result, -1);
+TEST(E_first, test) {
+    constexpr int x = 100000;
+    const float e = E(x);
+    ASSERT_TRUE(abs(e - M_E) < 0.0001);
 }
 
-TEST(some_second, test) {
+TEST(Pi_second, test) {
     static void *library = dlopen("../LW4/libsecond.so", RTLD_LAZY);
 
     if (library == NULL) {
@@ -24,13 +27,14 @@ TEST(some_second, test) {
         exit(-1);
     }
 
-    int (*_some)(int) = (int(*)(int))dlsym(library, "some");
+    float (*_Pi)(int) = (float(*)(int))dlsym(library, "Pi");
 
-    int result = _some(1);
-    ASSERT_EQ(result, 3);
+    constexpr int K = 10000;
+    const float pi = _Pi(K);
+    ASSERT_TRUE(abs(pi - M_PI) < 0.01);
 }
 
-TEST(home_second, test) {
+TEST(E_second, test) {
     static void *library = dlopen("../LW4/libsecond.so", RTLD_LAZY);
 
     if (library == NULL) {
@@ -38,10 +42,11 @@ TEST(home_second, test) {
         exit(-1);
     }
 
-    int (*_home)(int) = (int(*)(int))dlsym(library, "home");
+    float (*_E)(int) = (float(*)(int))dlsym(library, "E");
 
-    int result = _home(1);
-    ASSERT_EQ(result, -1);
+    constexpr int x = 100000;
+    const float e = _E(x);
+    ASSERT_TRUE(abs(e - M_E) < 0.0001);
 }
 
 int main(int argc, char **argv) {

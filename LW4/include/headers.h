@@ -1,7 +1,7 @@
 #ifndef HEADERS_H
 #define HEADERS_H
 
-int some(int x);
-int home(int y);
+float Pi(int K);
+float E(int x);
 
 #endif

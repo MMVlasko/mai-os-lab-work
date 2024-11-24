@@ -4,14 +4,14 @@
 
 typedef enum {
     EXIT = -1,
-    _FIRST = 1,
-    _SECOND = 2
+    PI = 1,
+    EXP = 2
 } Command;
 
 int main(void) {
     printf(
         "Usage:\n\t\b-1 - exit\n"
-        "\t1 - count primes\n\t2 - rebase a number\n"
+        "\t1 - find Pi\n\t2 - find E\n"
     );
 
     while (1) {
@@ -23,18 +23,18 @@ int main(void) {
             return 0;
         }
 
-        if (command == _FIRST) {
-            int a;
-            scanf(" %d", &a);
+        if (command == PI) {
+            int K;
+            scanf(" %d", &K);
 
-            int result = some(a);
-            printf("%d\n", result);
-        } else if (command == _SECOND) {
-            int n;
-            scanf(" %d", &n);
+            const float result = Pi(K);
+            printf("%f\n", result);
+        } else if (command == EXP) {
+            int x;
+            scanf(" %d", &x);
 
-            int result = home(n);
-            printf("%d\n", result);
+            const float result = E(x);
+            printf("%f\n", result);
         }
     }
 }

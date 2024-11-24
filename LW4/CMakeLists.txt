@@ -3,6 +3,8 @@ project(mai-os)
 
 add_library(first SHARED src/first_implementation.c)
 target_include_directories(first PRIVATE include)
+target_link_libraries(first PUBLIC m)
+
 add_library(second SHARED src/second_implementation.c)
 
 add_executable(lab4l linking_main.c)

@@ -4,8 +4,8 @@
 
 static void *library = NULL;
 
-static int (*some)(int);
-static int (*home)(int);
+static float (*Pi)(int);
+static float (*E)(int);
 
 typedef enum {
     FIRST,
@@ -15,8 +15,8 @@ typedef enum {
 typedef enum {
     EXIT = -1,
     CHANGE = 0,
-    _FIRST = 1,
-    _SECOND = 2
+    PI = 1,
+    EXP = 2
 } Command;
 
 void load_lib(const Impl impl) {
@@ -30,8 +30,8 @@ void load_lib(const Impl impl) {
         exit(-1);
     }
 
-    some = (int(*)(int))dlsym(library, "some");
-    home = (int(*)(int))dlsym(library, "home");
+    Pi = (float(*)(int))dlsym(library, "Pi");
+    E = (float(*)(int))dlsym(library, "E");
 }
 
 
@@ -39,7 +39,7 @@ int main() {
     Impl impl = FIRST;
     printf(
         "Usage:\n\t\b-1 - exit\n\t0 - change implementation\n"
-        "\t1 - count primes\n\t2 - rebase a number\n"
+        "\t1 - find Pi\n\t2 - find E\n"
     );
     load_lib(impl);
 
@@ -56,19 +56,19 @@ int main() {
             impl =! impl;
             dlclose(library);
             load_lib(impl);
-            printf("Implementation changed to%s\n", impl == FIRST ? "first" : "second");
-        } else if (command == _FIRST) {
-            int a;
-            scanf(" %d", &a);
+            printf("Implementation changed to %s\n", impl == FIRST ? "first" : "second");
+        } else if (command == PI) {
+            int K;
+            scanf(" %d", &K);
 
-            int result = some(a);
-            printf("%d\n", result);
-        } else if (command == _SECOND) {
-            int n;
-            scanf(" %d", &n);
+            const float result = Pi(K);
+            printf("%f\n", result);
+        } else if (command == EXP) {
+            int x;
+            scanf(" %d", &x);
 
-            int result = home(n);
-            printf("%d\n", result);
+            const float result = E(x);
+            printf("%f\n", result);
         }
     }
 }
