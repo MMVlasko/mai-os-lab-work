@@ -1,6 +1,8 @@
 #include <controller.h>
 
+#include <iostream>
+
 int main() {
-    controller();
+    Controller(std::cin, false);
     return 0;
 }

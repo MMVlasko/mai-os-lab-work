@@ -11,7 +11,7 @@
 #include <csignal>
 #include <sys/wait.h>
 
-void worker(int id) {
+void Worker(int id) {
     zmq::context_t context(1);
     zmq::socket_t socket(context, zmq::socket_type::rep);
     socket.bind("tcp://127.0.0.1:" + std::to_string(5555 + id));

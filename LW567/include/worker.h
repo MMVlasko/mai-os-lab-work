@@ -1,3 +1,3 @@
 #pragma once
 
-void worker(int id);
+void Worker(int id);

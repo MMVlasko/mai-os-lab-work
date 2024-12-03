@@ -16,18 +16,20 @@
 #include <functional>
 #include <sys/wait.h>
 
-void controller() {
+void Controller(std::istream &stream, bool test) {
     while (true) {
-        std::cout << "command> ";
-        std::cout.flush();
+        if (!test) {
+            std::cout << "command> ";
+            std::cout.flush();
+        }
         std::string command;
-        std::getline(std::cin, command);
+        std::getline(stream, command);
         std::istringstream iss(command);
 
-        std::string cmd_type;
-        iss >> cmd_type;
+        std::string cmdType;
+        iss >> cmdType;
 
-        if (cmd_type == "create") {
+        if (cmdType == "create") {
             int id;//, parent_id;
             iss >> id;// >> parent_id;
 
@@ -40,21 +42,21 @@ void controller() {
             // Создание нового узла
             pid_t pid = fork();
             if (pid == 0) {
-                worker(id);
+                Worker(id);
                 exit(0);
             }
 
-            if (!insertNode(root, id, pid)) {
+            if (!InsertNode(root, id, pid)) {
                 std::cout << "Error: Already exists\n";
                 kill(pid, SIGKILL);
                 continue;
             }
             std::cout << "Ok: " << pid << "\n";
-        } else if (cmd_type == "exec") {
+        } else if (cmdType == "exec") {
             int id, n;
             iss >> id >> n;
 
-            auto node = findNode(root, id);
+            auto node = FindNode(root, id);
             if (!node) {
                 std::cout << "Error:" << id << ": Not found\n";
                 continue;
@@ -81,47 +83,26 @@ void controller() {
             } catch (...) {
                 std::cout << "Error:" << id << ": Node is invaluable\n";
             }
-        } else if (cmd_type == "pingall") {
-            std::unordered_set<int> unavailable_nodes;
+        } else if (cmdType == "pingall") {
+            std::unordered_set<int> unavailableNodes;
 
-            std::function<void(std::shared_ptr<Node>)> pingNode = [&](const std::shared_ptr<Node>& node) {
-                if (!node) return;
+            PingNodes(root, unavailableNodes);
 
-                try {
-                    node->socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + node->id));
-                    zmq::message_t message("ping");
-                    node->socket.send(message, zmq::send_flags::none);
-
-                    zmq::message_t reply;
-                    if (!node->socket.recv(reply, zmq::recv_flags::none) &&
-                        std::strcmp(reply.to_string().c_str(), "Ok") != 0) {
-                        unavailable_nodes.insert(node->id);
-                    }
-                } catch (...) {
-                    unavailable_nodes.insert(node->id);
-                }
-
-                pingNode(node->left);
-                pingNode(node->right);
-            };
-
-            pingNode(root);
-
-            if (unavailable_nodes.empty()) {
+            if (unavailableNodes.empty()) {
                 std::cout << "Ok: -1\n";
             } else {
-                auto e = unavailable_nodes.begin();
+                auto e = unavailableNodes.begin();
                 std::cout << "Ok: " << *e;
                 ++e;
-                for (; e != unavailable_nodes.end(); ++e) {
+                for (; e != unavailableNodes.end(); ++e) {
                     std::cout << ";" << *e;
                 }
                 std::cout << "\n";
             }
-        } else if (cmd_type == "exit") {
-            terminateNodes(root);
-            gl_context.close();
-            exit(0);
+        } else if (cmdType == "exit") {
+            TerminateNodes(root);
+            globalContext.close();
+            break;
         } else {
             std::cout << "Error: Unknown command\n";
         }
