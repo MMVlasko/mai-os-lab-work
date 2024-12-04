@@ -1,0 +1,29 @@
+{
+  "jobs": [
+    {
+      "id": 3,
+      "name": "d",
+      "dependencies": [],
+      "semaphore": "sem1",
+      "semaphore_limit": 2,
+      "time": 4
+    },
+    {
+      "id": 0,
+      "name": "a",
+      "dependencies": [],
+      "semaphore": "sem1",
+      "time": 1
+    },
+    {
+      "id": 1,
+      "name": "b",
+      "dependencies": []
+    },
+    {
+      "id": 2,
+      "name": "c",
+      "dependencies": [0, 1, 3]
+    }
+  ]
+}
