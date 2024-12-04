@@ -88,6 +88,10 @@ int main(int argc, char* argv[]) {
         pthread_join(worker, nullptr);
     }
 
+    for (auto& [_, sem] : semaphores) {
+        sem_destroy(&sem);
+    }
+
     std::cout << (errorFlag ? "Execution failed" : "Execution completed successfully") << std::endl;
 
     return 0;

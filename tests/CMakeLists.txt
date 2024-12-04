@@ -26,6 +26,10 @@ add_executable(LW3_test lab3_test.cpp)
 target_include_directories(LW3_test PUBLIC ../LW3/include)
 target_link_libraries(LW3_test PRIVATE LW3_utils LW3_parent GTest::GTest)
 
+add_executable(CP_test cp_test.cpp)
+target_include_directories(CP_test PUBLIC ../CP/include)
+target_link_libraries(CP_test PRIVATE cp_tools nlohmann_json::nlohmann_json GTest::GTest)
+
 enable_testing()
 # add_test(NAME LW1_test COMMAND LW1_test)
 #add_test(NAME LW2_test COMMAND LW2_test)
