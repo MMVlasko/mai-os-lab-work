@@ -172,7 +172,6 @@ void *ThreadProcess(void*) {
 
         pthread_mutex_unlock(&queueMutex);
 
-        // Выполнение задачи
         if (currentJob != -1) {
             sem_t *sem = nullptr;
 
@@ -192,14 +191,14 @@ void *ThreadProcess(void*) {
 
                     if (inDegree[job] == 0) {
                         readyJobs.push(job);
-                        pthread_cond_signal(&queueCV); // Пробуждение потоков
+                        pthread_cond_signal(&queueCV);
                     }
                 }
             }
 
             if (activeJobs == 0 && readyJobs.empty()) {
                 done = true;
-                pthread_cond_broadcast(&queueCV); // Сигнал завершения всем потокам
+                pthread_cond_broadcast(&queueCV);
             }
 
             pthread_mutex_unlock(&queueMutex);

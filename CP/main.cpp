@@ -12,9 +12,15 @@ int main(int argc, char* argv[]) {
     }
 
     const std::string configFile = argv[1];
-    const int maxParallelJobs = std::stoi(argv[2]);
+    int maxParallelJobs;
+    try {
+        maxParallelJobs = std::stoi(argv[2]);
+    } catch (std::invalid_argument&) {
+        std::cerr << "Error: Incorrect args types" << std::endl;
+        return 1;
+    }
 
-    if(argc == 4) {
+    if (argc == 4) {
         mustBreak = argv[3];
     }
 
@@ -30,24 +36,30 @@ int main(int argc, char* argv[]) {
 
     std::unordered_set<int> ids;
     for (const auto& job : config["jobs"]) {
-        int id = job["id"];
+        int id;
+        try {
+            id = job["id"];
 
-        if (ids.find(id) != ids.end()) {
-            std::cerr << "Error: DAG contains duplicated ids" << std::endl;
+            if (ids.find(id) != ids.end()) {
+                std::cerr << "Error: DAG contains duplicated ids" << std::endl;
+                return 1;
+            }
+
+            ids.insert(id);
+            std::string name = job["name"];
+            jobs[id] = {name, job["dependencies"], job.value("semaphore", ""),
+                job.value("semaphore_limit", 1), job.value("time", 2)};
+        } catch (nlohmann::json_abi_v3_11_2::detail::type_error&) {
+            std::cerr << "Error: Parsing json failed" << std::endl;
             return 1;
         }
-
-        ids.insert(id);
-        std::string name = job["name"];
-        jobs[id] = {name, job["dependencies"], job.value("semaphore", ""),
-            job.value("semaphore_limit", 1), job.value("time", 2)};
         graph[id] = job["dependencies"].get<std::vector<int>>();
 
         if (job.contains("semaphore")) {
             auto semExists = false;
 
-            for (auto& [fst, _] : semaphores) {
-                if (fst == job["semaphore"]) {
+            for (auto& [semName, _] : semaphores) {
+                if (semName == job["semaphore"]) {
                     semExists = true;
                     break;
                 }
