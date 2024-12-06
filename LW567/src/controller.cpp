@@ -15,96 +15,114 @@
 #include <unistd.h>
 #include <functional>
 #include <sys/wait.h>
+#include <unordered_map>
+#include <future>
+#include <vector>
+
+std::string Exec(const std::shared_ptr<Node>& node, const int id, std::ostringstream& oss) {
+    std::string result;
+    try {
+        node->socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + id));
+        zmq::message_t message(oss.str());
+        node->socket.send(message, zmq::send_flags::none);
+
+        zmq::message_t reply;
+        if (node->socket.recv(reply, zmq::recv_flags::none)) {
+            result = reply.to_string() + "\n";
+        } else {
+            result = "Error:" + std::to_string(id) + ": Node is invaluable\n";
+        }
+    } catch (...) {
+        result = "Error:" + std::to_string(id) + ": Node is invaluable\n";
+    }
+    return result;
+}
 
 void Controller(std::istream &stream, bool test) {
+    std::vector<std::future<std::string>> futures;
+
     while (true) {
         if (!test) {
             std::cout << "command> ";
             std::cout.flush();
         }
         std::string command;
-        std::getline(stream, command);
-        std::istringstream iss(command);
+        if (std::getline(stream, command)) {
+            std::istringstream iss(command);
 
-        std::string cmdType;
-        iss >> cmdType;
+            std::string cmdType;
+            iss >> cmdType;
 
-        if (cmdType == "create") {
-            int id;//, parent_id;
-            iss >> id;// >> parent_id;
+            if (cmdType == "create") {
+                int id;
+                iss >> id;
 
-            // // Проверка на существование родителя
-            // if (parent_id != -1 && !findNode(root, parent_id)) {
-            //     std::cout << "Error: Parent not found\n";
-            //     continue;
-            // }
+                pid_t pid = fork();
+                if (pid == 0) {
+                    Worker(id);
+                    exit(0);
+                }
 
-            // Создание нового узла
-            pid_t pid = fork();
-            if (pid == 0) {
-                Worker(id);
-                exit(0);
-            }
+                if (!InsertNode(root, id, pid)) {
+                    std::cout << "Error: Already exists\n";
+                    kill(pid, SIGKILL);
+                    continue;
+                }
+                std::cout << "Ok: " << pid << "\n";
+            } else if (cmdType == "exec") {
+                int id, n;
+                iss >> id >> n;
 
-            if (!InsertNode(root, id, pid)) {
-                std::cout << "Error: Already exists\n";
-                kill(pid, SIGKILL);
-                continue;
-            }
-            std::cout << "Ok: " << pid << "\n";
-        } else if (cmdType == "exec") {
-            int id, n;
-            iss >> id >> n;
+                auto node = FindNode(root, id);
+                if (!node) {
+                    std::cout << "Error:" << id << ": Not found\n";
+                    continue;
+                }
 
-            auto node = FindNode(root, id);
-            if (!node) {
-                std::cout << "Error:" << id << ": Not found\n";
-                continue;
-            }
+                std::ostringstream oss;
+                oss << "exec " << n;
+                for (int i = 0; i < n; ++i) {
+                    int num;
+                    iss >> num;
+                    oss << " " << num;
+                }
+                try {
+                    futures.push_back(std::async(std::launch::async, Exec, node, id, std::ref(oss)));
+                } catch (...) {
+                    std::cout << "Error:" << id << ": Unhandled exception\n";
+                }
+            } else if (cmdType == "pingall") {
+                std::unordered_set<int> unavailableNodes;
 
-            std::ostringstream oss;
-            oss << "exec " << n;
-            for (int i = 0; i < n; ++i) {
-                int num;
-                iss >> num;
-                oss << " " << num;
-            }
-            try {
-                node->socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + id));
-                zmq::message_t message(oss.str());
-                node->socket.send(message, zmq::send_flags::none);
+                PingNodes(root, unavailableNodes);
 
-                zmq::message_t reply;
-                if (node->socket.recv(reply, zmq::recv_flags::none)) {
-                    std::cout << reply.to_string() << "\n";
+                if (unavailableNodes.empty()) {
+                    std::cout << "Ok: -1\n";
                 } else {
-                    std::cout << "Error:" << id << ": Node is invaluable\n";
+                    auto e = unavailableNodes.begin();
+                    std::cout << "Ok: " << *e;
+                    ++e;
+                    for (; e != unavailableNodes.end(); ++e) {
+                        std::cout << ";" << *e;
+                    }
+                    std::cout << "\n";
                 }
-            } catch (...) {
-                std::cout << "Error:" << id << ": Node is invaluable\n";
-            }
-        } else if (cmdType == "pingall") {
-            std::unordered_set<int> unavailableNodes;
-
-            PingNodes(root, unavailableNodes);
-
-            if (unavailableNodes.empty()) {
-                std::cout << "Ok: -1\n";
+            } else if (cmdType == "exit") {
+                TerminateNodes(root);
+                globalContext.close();
+                break;
             } else {
-                auto e = unavailableNodes.begin();
-                std::cout << "Ok: " << *e;
-                ++e;
-                for (; e != unavailableNodes.end(); ++e) {
-                    std::cout << ";" << *e;
-                }
-                std::cout << "\n";
+                std::cout << "Error: Unknown command\n";
             }
-        } else if (cmdType == "exit") {
-            TerminateNodes(root);
-            globalContext.close();
-            break;
-        } else {
-            std::cout << "Error: Unknown command\n";
+        }
+
+        for (auto it = futures.begin(); it != futures.end();) {
+            if (it->wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
+                std::cout << it->get();
+                it = futures.erase(it);
+            } else {
+                ++it;
+            }
         }
     }
 }
