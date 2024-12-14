@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
-static void *library = NULL;
+static void *library1;
+static void *library2;
 
 static float (*Pi)(int);
 static float (*E)(int);
@@ -19,29 +20,35 @@ typedef enum {
     EXP = 2
 } Command;
 
-void load_lib(const Impl impl) {
+void changeImpl(const Impl impl) {
     if (impl == FIRST) {
-        library = dlopen("./libfirst.so", RTLD_LAZY);
+        Pi = (float(*)(int))dlsym(library1, "Pi");
+        E = (float(*)(int))dlsym(library1, "E");
     } else {
-        library = dlopen("./libsecond.so", RTLD_LAZY);
+        Pi = (float(*)(int))dlsym(library2, "Pi");
+        E = (float(*)(int))dlsym(library2, "E");
     }
-    if (library == NULL) {
+}
+
+int main() {
+    library1 = dlopen("./libfirst.so", RTLD_LAZY);
+    if (library1 == NULL) {
         fprintf(stderr, "Error with loading library\n");
         exit(-1);
     }
 
-    Pi = (float(*)(int))dlsym(library, "Pi");
-    E = (float(*)(int))dlsym(library, "E");
-}
+    library2 = dlopen("./libsecond.so", RTLD_LAZY);
+    if (library2 == NULL) {
+        fprintf(stderr, "Error with loading library\n");
+        exit(-1);
+    }
 
-
-int main() {
     Impl impl = FIRST;
     printf(
         "Usage:\n\t\b-1 - exit\n\t0 - change implementation\n"
         "\t1 - find Pi\n\t2 - find E\n"
     );
-    load_lib(impl);
+    changeImpl(impl);
 
     while (1) {
         printf("command> ");
@@ -49,13 +56,14 @@ int main() {
         scanf("%d", &command);
 
         if (command == EXIT) {
+            dlclose(library1);
+            dlclose(library2);
             return 0;
         }
 
         if (command == CHANGE) {
             impl =! impl;
-            dlclose(library);
-            load_lib(impl);
+            changeImpl(impl);
             printf("Implementation changed to %s\n", impl == FIRST ? "first" : "second");
         } else if (command == PI) {
             int K;
