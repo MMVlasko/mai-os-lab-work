@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
             if (!semExists) {
                 const std::string sem_name = job["semaphore"];
-                int semLimit = job.value("semaphore_limit", 1);
+                int semLimit = jobs[id].semaphoreLimit;
                 sem_t semaphore;
                 sem_init(&semaphore, 0, semLimit);
                 semaphores.emplace(sem_name, semaphore);

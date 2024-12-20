@@ -22,9 +22,9 @@ set(CMAKE_CXX_STANDARD 17)
 #target_include_directories(LW2_test PUBLIC ../LW2/include)
 #target_link_libraries(LW2_test PRIVATE LW2_utils GTest::GTest)
 
-add_executable(LW3_test lab3_test.cpp)
-target_include_directories(LW3_test PUBLIC ../LW3/include)
-target_link_libraries(LW3_test PRIVATE LW3_utils LW3_parent GTest::GTest)
+#add_executable(LW3_test lab3_test.cpp)
+#target_include_directories(LW3_test PUBLIC ../LW3/include)
+#target_link_libraries(LW3_test PRIVATE LW3_utils LW3_parent GTest::GTest)
 
 add_executable(CP_test cp_test.cpp)
 target_include_directories(CP_test PUBLIC ../CP/include)

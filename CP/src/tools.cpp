@@ -115,7 +115,7 @@ bool ValidateDAG(std::unordered_map<int, std::vector<int>>& graph) {
     return true;
 }
 
-void ExecuteJob(const std::string& jobName, sem_t* semaphore, std::atomic<bool>& errorFlag, const int execTime = 2) {
+void ExecuteJob(const std::string& jobName, sem_t* semaphore, std::atomic<bool>& errorFlag, const int execTime) {
     if (errorFlag) {
         pthread_cond_broadcast(&queueCV);
         return;
