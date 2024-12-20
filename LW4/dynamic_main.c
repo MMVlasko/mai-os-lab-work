@@ -33,13 +33,13 @@ void changeImpl(const Impl impl) {
 int main() {
     library1 = dlopen("./libfirst.so", RTLD_LAZY);
     if (library1 == NULL) {
-        fprintf(stderr, "Error with loading library\n");
+        fprintf(stderr, "Error with loading library1: %s\n", dlerror());
         exit(-1);
     }
 
     library2 = dlopen("./libsecond.so", RTLD_LAZY);
     if (library2 == NULL) {
-        fprintf(stderr, "Error with loading library\n");
+        fprintf(stderr, "Error with loading library2: %s\n", dlerror());
         exit(-1);
     }
 

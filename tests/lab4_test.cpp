@@ -23,14 +23,14 @@ TEST(Pi_second, test) {
     static void *library = dlopen("../LW4/libsecond.so", RTLD_LAZY);
 
     if (library == NULL) {
-        fprintf(stderr, "Error with loading library\n");
+        fprintf(stderr, "Error with loading library2: %s\n", dlerror());
         exit(-1);
     }
 
-    float (*_Pi)(int) = (float(*)(int))dlsym(library, "Pi");
+    float (*DynamicPi)(int) = (float(*)(int))dlsym(library, "Pi");
 
     constexpr int K = 10000;
-    const float pi = _Pi(K);
+    const float pi = DynamicPi(K);
     ASSERT_TRUE(abs(pi - M_PI) < 0.01);
 }
 
@@ -38,14 +38,14 @@ TEST(E_second, test) {
     static void *library = dlopen("../LW4/libsecond.so", RTLD_LAZY);
 
     if (library == NULL) {
-        fprintf(stderr, "Error with loading library\n");
+        fprintf(stderr, "Error with loading library2: %s\n", dlerror());
         exit(-1);
     }
 
-    float (*_E)(int) = (float(*)(int))dlsym(library, "E");
+    float (*DynamicE)(int) = (float(*)(int))dlsym(library, "E");
 
     constexpr int x = 100000;
-    const float e = _E(x);
+    const float e = DynamicE(x);
     ASSERT_TRUE(abs(e - M_E) < 0.0001);
 }
 

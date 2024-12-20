@@ -1,3 +1,4 @@
+// Формула Валлиса
 float Pi(const int K) {
     float pi = 1.0;
     for (int i = 1; i <= K; i++) {
@@ -6,6 +7,7 @@ float Pi(const int K) {
     return pi * 2;
 }
 
+// (1/(n!))
 float E(const int x) {
     float e = 1.0;
     float fact = 1.0;

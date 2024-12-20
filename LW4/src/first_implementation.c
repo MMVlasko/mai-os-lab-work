@@ -2,6 +2,7 @@
 
 #include <headers.h>
 
+// Ряд Лейбница
 float Pi(const int K) {
   float pi = 0.0;
   int sign = 1;
