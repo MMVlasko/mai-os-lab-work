@@ -13,17 +13,15 @@
 #include <sys/types.h>
 #include <csignal>
 #include <unistd.h>
-#include <functional>
 #include <sys/wait.h>
 #include <unordered_map>
 #include <future>
 #include <vector>
 
-std::string Exec(const std::shared_ptr<Node>& node, const int id, std::ostringstream& oss) {
+std::string Exec(const std::shared_ptr<Node>& node, const int id, const std::string& oss) {
     std::string result;
     try {
-        node->socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + id));
-        zmq::message_t message(oss.str());
+        zmq::message_t message(oss);
         node->socket.send(message, zmq::send_flags::none);
 
         zmq::message_t reply;
@@ -32,8 +30,10 @@ std::string Exec(const std::shared_ptr<Node>& node, const int id, std::ostringst
         } else {
             result = "Error:" + std::to_string(id) + ": Node is invaluable\n";
         }
-    } catch (...) {
+    } catch (zmq::error_t&) {
         result = "Error:" + std::to_string(id) + ": Node is invaluable\n";
+    } catch (std::exception& e) {
+        result = "Error:" + std::to_string(id) + ": " + e.what() + "\n";
     }
     return result;
 }
@@ -87,9 +87,9 @@ void Controller(std::istream &stream, bool test) {
                     oss << " " << num;
                 }
                 try {
-                    futures.push_back(std::async(std::launch::async, Exec, node, id, std::ref(oss)));
-                } catch (...) {
-                    std::cout << "Error:" << id << ": Unhandled exception\n";
+                    futures.push_back(std::async(std::launch::async, Exec, node, id, oss.str()));
+                } catch (std::exception& e) {
+                    std::cout << "Error:" << id << ": " << e.what() << std::endl;
                 }
             } else if (cmdType == "pingall") {
                 std::unordered_set<int> unavailableNodes;
@@ -117,7 +117,7 @@ void Controller(std::istream &stream, bool test) {
         }
 
         for (auto it = futures.begin(); it != futures.end();) {
-            if (it->wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
+            if (it->wait_for(std::chrono::milliseconds(50)) == std::future_status::ready) {
                 std::cout << it->get();
                 it = futures.erase(it);
             } else {
