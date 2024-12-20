@@ -57,18 +57,11 @@ void Controller(std::istream &stream, bool test) {
                 int id;
                 iss >> id;
 
-                pid_t pid = fork();
-                if (pid == 0) {
-                    Worker(id);
-                    exit(0);
-                }
-
-                if (!InsertNode(root, id, pid)) {
+                if (!InsertNode(root, id)) {
                     std::cout << "Error: Already exists\n";
-                    kill(pid, SIGKILL);
                     continue;
                 }
-                std::cout << "Ok: " << pid << "\n";
+                std::cout << "Ok: " << root->pid << "\n";
             } else if (cmdType == "exec") {
                 int id, n;
                 iss >> id >> n;
@@ -91,6 +84,7 @@ void Controller(std::istream &stream, bool test) {
                 } catch (std::exception& e) {
                     std::cout << "Error:" << id << ": " << e.what() << std::endl;
                 }
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             } else if (cmdType == "pingall") {
                 std::unordered_set<int> unavailableNodes;
 
@@ -117,7 +111,7 @@ void Controller(std::istream &stream, bool test) {
         }
 
         for (auto it = futures.begin(); it != futures.end();) {
-            if (it->wait_for(std::chrono::milliseconds(50)) == std::future_status::ready) {
+            if (it->wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
                 std::cout << it->get();
                 it = futures.erase(it);
             } else {

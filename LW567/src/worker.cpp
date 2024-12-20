@@ -11,11 +11,11 @@
 #include <csignal>
 #include <sys/wait.h>
 
-void Worker(int id) {
+void Worker(int id, int sockId) {
     zmq::context_t context(1);
     zmq::socket_t socket(context, zmq::socket_type::rep);
     try {
-        socket.bind("tcp://127.0.0.1:" + std::to_string(5555 + id));
+        socket.bind("tcp://127.0.0.1:" + std::to_string(5555 + sockId));
     } catch (zmq::error_t&) {
         context.close();
         exit(-1);

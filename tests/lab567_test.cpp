@@ -9,25 +9,22 @@
 TEST(insertNode, test)
 {
     auto id = 1;
-    auto pid = 234;
     std::shared_ptr<Node> root = nullptr;
 
-    auto ok = InsertNode(root, id, pid);
+    auto ok = InsertNode(root, id);
 
     ASSERT_TRUE(ok);
     ASSERT_EQ(root->id, id);
-    ASSERT_EQ(root->pid, pid);
 
-    auto ok1 = InsertNode(root, id + 1, pid + 1);
+    auto ok1 = InsertNode(root, id + 1);
 
     ASSERT_TRUE(ok1);
     ASSERT_FALSE(root->right == nullptr);
     ASSERT_EQ(root->right->id, id + 1);
-    ASSERT_EQ(root->right->pid, pid + 1);
 
     ASSERT_TRUE(root->left == nullptr);
 
-    auto bad = InsertNode(root, id, pid);
+    auto bad = InsertNode(root, id);
     ASSERT_FALSE(bad);
 }
 
@@ -37,8 +34,8 @@ TEST(findNode, test)
     auto pid = 234;
     std::shared_ptr<Node> root = nullptr;
 
-    InsertNode(root, id, pid);
-    InsertNode(root, id + 1, pid + 1);
+    InsertNode(root, id);
+    InsertNode(root, id + 1);
 
     auto first = FindNode(root, id);
     auto second = FindNode(root, id + 1);
@@ -56,22 +53,10 @@ TEST(pinAndDestroyNodes, test)
     auto id2 = 2222;
     std::shared_ptr<Node> root = nullptr;
 
-    pid_t pid1 = fork();
-    if (pid1 == 0) {
-        Worker(id1);
-        exit(0);
-    }
-
-    pid_t pid2 = fork();
-    if (pid2 == 0) {
-        Worker(id2);
-        exit(0);
-    }
-
-    InsertNode(root, id1, pid1);
-    InsertNode(root, id2, pid2);
+    InsertNode(root, id1);
+    InsertNode(root, id2);
     root->right->socket.close();
-    kill(pid2, SIGKILL);
+    kill(root->right->pid, SIGKILL);
 
     std::unordered_set<int> unavailable_nodes;
 
@@ -94,13 +79,7 @@ TEST(worker, test)
     auto id = 1;
     std::shared_ptr<Node> root = nullptr;
 
-    pid_t pid = fork();
-    if (pid == 0) {
-        Worker(id);
-        exit(0);
-    }
-
-    InsertNode(root, id, pid);
+    InsertNode(root, id);
 
     zmq::message_t message(msg);
     root->socket.send(message, zmq::send_flags::none);

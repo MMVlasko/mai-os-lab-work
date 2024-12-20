@@ -5,13 +5,22 @@
 #include <thread>
 #include <sys/types.h>
 #include <csignal>
+#include <worker.h>
 #include <sys/wait.h>
 
-Node::Node(int id, int pid) : id(id), pid(pid) {
+Node::Node(int id) : id(id), pid(-1) {
     socket = zmq::socket_t(globalContext, zmq::socket_type::req);
     socket.set(zmq::sockopt::rcvtimeo, 2000);
     socket.set(zmq::sockopt::linger, 0);
-    socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + id));
+    sockId = id;
+    while (true) {
+        try {
+            socket.connect("tcp://127.0.0.1:" + std::to_string(5555 + sockId));
+            break;
+        } catch (zmq::error_t&) {
+            ++sockId;
+        }
+    }
 }
 
 std::shared_ptr<Node> FindNode(std::shared_ptr<Node> root, int id) {
@@ -27,10 +36,17 @@ std::shared_ptr<Node> FindNode(std::shared_ptr<Node> root, int id) {
     return FindNode(root->right, id);
 }
 
-bool InsertNode(std::shared_ptr<Node>& root, int id, int pid) {
+bool InsertNode(std::shared_ptr<Node>& root, int id) {
     if (root == nullptr) {
         try {
-            root = std::make_shared<Node>(id, pid);
+            root = std::make_shared<Node>(id);
+            pid_t pid = fork();
+            if (pid == 0) {
+                Worker(id, root->sockId);
+                exit(0);
+            }
+            root->pid = pid;
+            return true;
         } catch (zmq::error_t&) {
             return false;
         }
@@ -40,9 +56,9 @@ bool InsertNode(std::shared_ptr<Node>& root, int id, int pid) {
         return false;
     }
     if (id < root->id) {
-        return InsertNode(root->left, id, pid);
+        return InsertNode(root->left, id);
     }
-    return InsertNode(root->right, id, pid);
+    return InsertNode(root->right, id);
 }
 
 void PingNodes(const std::shared_ptr<Node>& node, std::unordered_set<int> &unavailable_nodes) {
