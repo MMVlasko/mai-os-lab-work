@@ -1,6 +1,5 @@
 #include <controller.h>
 #include <tools.h>
-#include <worker.h>
 
 #include <iostream>
 #include <string>
@@ -9,11 +8,6 @@
 #include <sstream>
 #include <thread>
 #include <zmq.hpp>
-#include <cstdlib>
-#include <sys/types.h>
-#include <csignal>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <unordered_map>
 #include <future>
 #include <vector>
