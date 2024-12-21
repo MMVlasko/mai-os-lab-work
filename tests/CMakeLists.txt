@@ -26,7 +26,12 @@ add_executable(LW3_test lab3_test.cpp)
 target_include_directories(LW3_test PUBLIC ../LW3/include)
 target_link_libraries(LW3_test PRIVATE LW3_utils LW3_parent GTest::GTest)
 
+add_executable(LW4_test lab4_test.cpp)
+target_include_directories(LW4_test PUBLIC ../LW4/include)
+target_link_libraries(LW4_test PRIVATE first GTest::GTest)
+
 enable_testing()
+# add_test(NAME LW1_test COMMAND LW1_test)
 # add_test(NAME LW1_test COMMAND LW1_test)
 #add_test(NAME LW2_test COMMAND LW2_test)
 add_test(NAME LW4_test COMMAND LW4_test)
