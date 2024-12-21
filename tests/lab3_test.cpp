@@ -56,7 +56,7 @@ TEST(test_parent, test)
 
     std::unique_ptr<FILE, decltype(deleter)> inFile(fopen(fileWithInput, "r"), deleter);
 
-    Parent("../LW3/child1", "../LW3/child2", inFile.get());
+    Parent("../LW3/LW3_child1", "../LW3/LW3_child2", inFile.get());
 
     std::ifstream file1(input[0]);
     std::ifstream file2(input[1]);
