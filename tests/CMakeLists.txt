@@ -30,7 +30,12 @@ add_executable(LW567_test lab567_test.cpp)
 target_include_directories(LW567_test PUBLIC ../LW567/include)
 target_link_libraries(LW567_test PRIVATE lab567_tools lab567_worker lab567_controller /usr/lib/x86_64-linux-gnu/libzmq.so GTest::GTest)
 
+add_executable(LW4_test lab4_test.cpp)
+target_include_directories(LW4_test PUBLIC ../LW4/include)
+target_link_libraries(LW4_test PRIVATE first GTest::GTest)
+
 enable_testing()
+# add_test(NAME LW1_test COMMAND LW1_test)
 # add_test(NAME LW1_test COMMAND LW1_test)
 #add_test(NAME LW2_test COMMAND LW2_test)
 #add_test(NAME LW4_test COMMAND LW4_test)
